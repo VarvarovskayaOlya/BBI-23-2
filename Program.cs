@@ -1,41 +1,57 @@
 ﻿using System;
-struct Employee
+
+abstract class Company
 {
     private string Name;
-    private int UniqueID;
-    private int Age;
-    private int YearOfHiring;
-    private double Salary;
-    private static int employeesHiredAfter2020 = 0;
+    private Company[] Employees;
 
-    public Employee(string name, int age, int yearOfHiring, double salary)
+    public abstract double CalculateAverageSalary();
+
+    public Company(string name, Company[] employees)
     {
         Name = name;
-        UniqueID = ++employeesHiredAfter2020;
-        Age = age;
-        YearOfHiring = yearOfHiring;
-        Salary = salary;
+        Employees = employees;
+
     }
-    public void DisplayInfo()
+}
+
+class ItCompany : Company
+{
+    public int MaxAgeCriteria;
+
+    public ItCompany(string name, Company[] employees, int maxAgeCriteria) : base(name, employees)
     {
-        Console.WriteLine($"Сотрудник {Name} (Табельный номер: {UniqueID})");
-        Console.WriteLine($"Возраст: {Age}, Год приема на работу: {YearOfHiring}, Зарплата: {Salary}");
-        Console.WriteLine();
+        MaxAgeCriteria = maxAgeCriteria;
     }
-    public static void SortEmployees(Employee[] employees)
+
+    public override double CalculateAverageSalary()
     {
-        for (int i = 0; i < employees.Length - 1; i++)
+        double totalSalary = 0;
+        foreach (var employee in Employees)
         {
-            for (int j = i + 1; j < employees.Length; j++)
-            {
-                if (string.Compare(employees[i].Name, employees[j].Name) > 0)
-                {
-                    Employee temp = employees[i];
-                    employees[i] = employees[j];
-                    employees[j] = temp;
-                }
-            }
+            totalSalary += employee.Salary;
         }
+        return totalSalary / Employees.Length;
+    }
+}
+
+class IndustrialCompany : Company
+{
+    public int MinYearsOfExperienceCriteria;
+
+    public IndustrialCompany(string name, Company[] employees, int minYearsOfExperienceCriteria) : base(name, employees)
+    {
+        MinYearsOfExperienceCriteria = minYearsOfExperienceCriteria;
+    }
+
+    public override double CalculateAverageSalary()
+    {
+        double totalSalary = 0;
+        foreach (var employee in Employees)
+        {
+            totalSalary += Company.Salary;
+        }
+        return totalSalary / Employees.Length;
     }
 }
 
@@ -43,33 +59,71 @@ class Program
 {
     static void Main()
     {
-        Employee[] employees = new Employee[5];
-        employees[0] = new Employee("Недотёпов", 25, 2016, 150000);
-        employees[1] = new Employee("Дураков", 41, 2024, 26000);
-        employees[2] = new Employee("Простофилин", 21, 2022, 95000);
-        employees[3] = new Employee("Идиотов", 28, 2022, 185000);
-        employees[4] = new Employee("Болванко", 33, 2017, 340000);
-
-        Employee.SortEmployees(employees);
-
-        foreach (var employee in employees)
+        Company[] itEmployees1 = new Company[]
         {
-            employee.DisplayInfo();
+            new Employee("Иванов", 30, 2021, 50000),
+            new Employee("Петров", 25, 2019, 45000),
+            new Employee("Сидоров", 28, 2022, 52000),
+            new Employee("Козлов", 35, 2020, 48000),
+            new Employee("Смирнов", 32, 2023, 55000)
+        };
+
+        Company[] itEmployees2 = new Company[]
+        {
+            new Employee("Алексеев", 27, 2020, 47000),
+            new Employee("Николаев", 29, 2021, 49000),
+            new Employee("Григорьев", 31, 2019, 46000),
+            new Employee("Федоров", 33, 2022, 51000),
+            new Employee("Дмитриев", 26, 2023, 48000)
+        };
+
+        ItCompany itCompany1 = new ItCompany("IT Company 1", itEmployees1, 30);
+        ItCompany itCompany2 = new ItCompany("IT Company 2", itEmployees2, 28);
+
+        Company[] industrialEmployees1 = new Company[]
+        {
+            new Employee("Семенов", 40, 2018, 60000),
+            new Employee("Павлов", 38, 2017, 58000),
+            new Employee("Михайлов", 42, 2019, 62000),
+            new Employee("Анатольев", 37, 2020, 57000),
+            new Employee("Степанов", 39, 2016, 59000)
+        };
+
+        Company[] industrialEmployees2 = new Company[]
+        {
+            new Employee("Герасимов", 45, 2015, 65000),
+            new Employee("Артемьев", 43, 2016, 63000),
+            new Employee("Игнатьев", 41, 2018, 61000),
+            new Employee("Тимофеев", 44, 2017, 64000),
+            new Employee("Владимиров", 46, 2019, 66000)
+        };
+
+        IndustrialCompany industrialCompany1 = new IndustrialCompany("Industrial Company 1", industrialEmployees1, 5);
+        IndustrialCompany industrialCompany2 = new IndustrialCompany("Industrial Company 2", industrialEmployees2, 4);
+
+        Company[] companies = { itCompany1, itCompany2, industrialCompany1, industrialCompany2 };
+
+
+        for (int i = 0; i < companies.Length - 1; i++)
+        {
+            for (int j = i + 1; j < companies.Length; j++)
+            {
+                if (companies[i].CalculateAverageSalary() < companies[j].CalculateAverageSalary())
+                {
+                    Company temp = companies[i];
+                    companies[i] = companies[j];
+                    companies[j] = temp;
+                }
+            }
+        }
+
+
+        Console.WriteLine("{0,-20} {1,-20}", "Название компании", "Средняя зарплата");
+        Console.WriteLine(new string('-', 42));
+
+        foreach (var company in companies)
+        {
+            Console.WriteLine("{0,-20} {1,-20}", company.Name, company.CalculateAverageSalary());
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
